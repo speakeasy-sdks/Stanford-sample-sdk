@@ -1,0 +1,1661 @@
+# NOTE: The openapi and info sections will be overwritten by default values from YamlAggregator.scala. They are only
+#       here because valid OpenApi specs are required for our scala codegen.
+openapi: 3.0.3
+info:
+  title: Domino Public API
+  description: Public API endpoints for Registered Models
+  version: 5.2.0
+tags:
+  - name: Registered Models
+
+paths:
+  /api/registeredmodels/v1:
+    get:
+      tags:
+        - RegisteredModels
+      summary: Get Registered Models visible to user
+      description: "Get registered models that a user can see."
+      operationId: getRegisteredModels
+      parameters:
+        - in: query
+          name: projectId
+          description: Project ID of requested models.
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: searchPattern
+          description: Search parameter to retrieve models from Mlflow (currently supports name and tags)
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: pageToken
+          description: Pagination token to go to the next page based on a previous search query.
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: maxResults
+          description: Max number of Registered Models to fetch. Defaults to 25.
+          required: false
+          schema:
+            type: integer
+            default: 25
+        - in: query
+          name: orderBy
+          description: List of columns for ordering search results, which can include model name and last updated timestamp with an optional “DESC” or “ASC” annotation, where “ASC” is the default. Tiebreaks are done by model name ASC.
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/PaginatedRegisteredModelsEnvelopeV1'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+    post:
+      tags:
+        - RegisteredModels
+      summary: Create a new a Registered Model from an experiment run
+      description: "Create a new a Registered Model from an experiment run"
+      operationId: createRegisteredModelFromRun
+      requestBody:
+        description: Details of the registered model to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewRegisteredModelV1'
+      responses:
+        200:
+          description: Success
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/RegisteredModelV1'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+
+  /api/registeredmodels/v1/ui:
+    get:
+      tags:
+        - RegisteredModels
+      summary: Get Registered Models visible to user
+      description: "Get registered models that a user can see."
+      operationId: getRegisteredModelsForUI
+      parameters:
+        - in: query
+          name: projectId
+          description: Project ID of requested models.
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: searchPattern
+          description: Search parameter to retrieve models from Mlflow (currently supports name and tags)
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: globallyDiscoverable
+          description: globallyDiscoverable flag to indicate if we want to return globally discoverable models. Defaults to false.
+          schema:
+            type: boolean
+        - in: query
+          name: pageToken
+          description: Pagination token to go to the next page based on a previous search query.
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: maxResults
+          description: Max number of Registered Models to fetch. Defaults to 25.
+          required: false
+          schema:
+            type: integer
+            default: 25
+        - in: query
+          name: orderBy
+          description: List of columns for ordering search results, which can include model name and last updated timestamp with an optional “DESC” or “ASC” annotation, where “ASC” is the default.
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/PaginatedRegisteredModelsForUIEnvelopeV1'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+
+  /api/registeredmodels/v1/names:
+    get:
+      tags:
+        - RegisteredModels
+      summary: Get a list of Registered Models' names visible to user
+      description: "Get a list of Registered Models' names visible to user."
+      operationId: getRegisteredModelNames
+      parameters:
+        - in: query
+          name: search
+          description: Search filter by model name
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: offset
+          description: How many Registered Models from the start to skip. Defaults to 0.
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: limit
+          description: Max number of Registered Models to fetch. Defaults to 10.
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - in: query
+          name: projectId
+          description: Project ID of requested models.
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/PaginatedRegisteredModelNamesV1'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+
+  /api/registeredmodels/v1/{modelName}:
+    get:
+      tags:
+        - RegisteredModels
+      summary: Get a specific Registered Model
+      description: "Get a specific Registered Model"
+      operationId: getRegisteredModelByName
+      parameters:
+        - in: path
+          name: modelName
+          description: Registered model name
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/RegisteredModelV1'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+    patch:
+      tags:
+        - RegisteredModels
+      summary: Update a Registered Model
+      description: "Update a Registered Model"
+      operationId: patchRegisteredModelByName
+      parameters:
+        - in: path
+          name: modelName
+          description: Registered model name
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Details of the model to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchRegisteredModelV1'
+      responses:
+        200:
+          description: Success
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/RegisteredModelV1'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+
+  /api/registeredmodels/v1/{modelName}/versions:
+    get:
+      tags:
+        - RegisteredModels
+      summary: Get all versions of a Registered Model
+      description: "Get all versions of a Registered Model"
+      operationId: getRegisteredModelVersions
+      parameters:
+        - in: path
+          name: modelName
+          description: Registered model name
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: offset
+          description: Offset for pagination from the start to skip. Defaults to 0.
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: limit
+          description: Max number of Registered Models to fetch. Defaults to 20
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        200:
+          description: Success
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/PaginatedRegisteredModelVersionOverviewEnvelopeV1'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+    post:
+      tags:
+        - RegisteredModels
+      summary: Create a new version of a Registered Model
+      description: "Create a new version of a Registered Model"
+      operationId: createRegisteredModelVersionFromRun
+      parameters:
+        - in: path
+          name: modelName
+          description: Registered model name
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Details of the model version to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewRegisteredModelVersionV1'
+      responses:
+        200:
+          description: Success
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/RegisteredModelVersionDetailsV1'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+
+  /api/registeredmodels/v1/{modelName}/versions/{version}:
+    get:
+      tags:
+        - RegisteredModels
+      summary: Get a specific version of a Registered Model
+      description: "Get a specific version of a Registered Model"
+      operationId: getRegisteredModelVersion
+      parameters:
+        - in: path
+          name: modelName
+          description: Registered model name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: version
+          description: Version of the registered model
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/RegisteredModelVersionDetailsV1'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+    patch:
+      tags:
+        - RegisteredModels
+      summary: Update a Registered Model version
+      description: "Update a Registered Model version"
+      operationId: updateRegisteredModelVersion
+      parameters:
+        - in: path
+          name: modelName
+          description: Registered model name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: version
+          description: Version of the registered model
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: Updated details of the registered model version
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatedRegisteredModelVersionV1'
+      responses:
+        200:
+          description: Success
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/RegisteredModelVersionDetailsV1'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+
+  /api/registeredmodels/v1/{modelName}/versions/{version}/stages/validation:
+    put:
+      tags:
+        - RegisteredModels
+      summary: Validates whether a model version can transition to a given stage
+      description: "Validates whether a model version can transition to a given stage"
+      operationId: validateRegisteredModelVersionStage
+      parameters:
+        - in: path
+          name: modelName
+          description: Registered model name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: version
+          description: Version of the registered model
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: The information of the stage to transition
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisteredModelVersionStageValidationV1'
+      responses:
+        200:
+          description: Success
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+
+  /api/registeredmodels/v1/{modelName}/modelapis:
+    get:
+      tags:
+        - RegisteredModels
+      summary: Returns list of Model APIs deployed from a specific Registered Model
+      description: "Gets all active model Apis that were deployed from a given Registered Model"
+      operationId: getModelApisFromRegisteredModel
+      parameters:
+        - in: path
+          name: modelName
+          description: Registered model name
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/PaginatedRegisteredModelVersionModelApiEnvelopeV1'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+
+
+  /api/registeredmodels/v1/{modelName}/versions/{version}/modelapis:
+    get:
+      tags:
+        - RegisteredModels
+      summary: Returns list of Model APIs deployed from a specific Registered Model Version
+      description: "Gets all active model Apis that were deployed from a given Registered Model Version"
+      operationId: getModelApisFromRegisteredModelVersion
+      parameters:
+        - in: path
+          name: modelName
+          description: Registered model name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: version
+          description: Version of the registered model
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/PaginatedRegisteredModelVersionModelApiEnvelopeV1'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+
+  /api/registeredmodels/v1/{modelName}/versions/{version}/reviewstages:
+    get:
+      tags:
+        - RegisteredModels
+      summary: Get registered model version stages valid for starting a model review
+      description: "Get registered model version stages valid for starting a model review"
+      operationId: getModelVersionReviewStages
+      parameters:
+        - in: path
+          name: modelName
+          description: model name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: version
+          description: version of the model
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/RegisteredModelVersionReviewStagesResponseV1'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+
+  /api/registeredmodels/v1/{modelName}/versions/{version}/reviews:
+    post:
+      tags:
+        - RegisteredModels
+      summary: Create a review of a Registered Model
+      description: "Create a review of a Registered Model"
+      operationId: createRegisteredModelReview
+      parameters:
+        - in: path
+          name: modelName
+          description: Registered model name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: version
+          description: Version of the registered model
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: Details about the review to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewRegisteredModelReviewV1'
+      responses:
+        201:
+          description: Created
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+
+  /api/registeredmodels/v1/{modelName}/versions/{version}/reviews/{modelReviewId}:
+    patch:
+      tags:
+        - RegisteredModels
+      summary: Update a review of a Registered Model - add or remove reviewers with an option to change notes, or change status to canceled with an an option to change notes but cannot do both simultaneously or simply change notes
+      description: "Update a review of a Registered Model by 1) adding or remove reviewers with an option to change notes, or 2) changing status to canceled with an an option to change notes, but cannot do both simultaneously, or 3) changing only notes"
+      operationId: updateRegisteredModelReview
+      parameters:
+        - in: path
+          name: modelName
+          description: Registered model name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: version
+          description: Version of the registered model
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: modelReviewId
+          description: Id of the model review to edit
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Details about the review edit
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatedRegisteredModelReviewV1'
+      responses:
+        204:
+          description: Updated
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+
+  /api/registeredmodels/v1/{modelName}/versions/{version}/reviews/{modelReviewId}/responses:
+    post:
+      tags:
+        - RegisteredModels
+      summary: Create a response to a Registered Model review
+      description: "Create a response to a Registered Model review"
+      operationId: createRegisteredModelReviewResponse
+      parameters:
+        - in: path
+          name: modelName
+          description: Registered model name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: version
+          description: Version of the registered model
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: modelReviewId
+          description: Id of Model Review
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Details about the review to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewRegisteredModelReviewResponseV1'
+      responses:
+        201:
+          description: Created
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+
+  /api/registeredmodelstages/v1:
+    get:
+      tags:
+        - RegisteredModels
+      summary: Get the possible stages of a Registered Model
+      description: "Get the possible stages of a Registered Model"
+      operationId: getRegisteredModelStages
+      responses:
+        200:
+          description: Success
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/RegisteredModelStageEnvelopeV1'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+
+  /api/registeredmodels/v1/versions/stages/projects/{projectId}:
+    put:
+      tags:
+        - RegisteredModels
+      summary: Set registered model version stages for a project
+      description: "Set registered model version stages for a project"
+      operationId: setRegisteredModelVersionStages
+      parameters:
+        - in: path
+          name: projectId
+          description: Project ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: List of registered model version stages to set for a project
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisteredModelVersionStagesV1'
+      responses:
+        200:
+          description: Success
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/RegisteredModelVersionStagesResponseV1'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+
+    get:
+      tags:
+        - RegisteredModels
+      summary: Get registered model version stages for a project
+      description: "Get registered model version stages for a project"
+      operationId: getRegisteredModelVersionStages
+      parameters:
+        - in: path
+          name: projectId
+          description: Project ID
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: includeDefaults
+          description: includeDefaults flag to indicate if we want to return global stages if no overrides are set for the project
+          schema:
+            type: boolean
+      responses:
+        200:
+          description: Success
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/RegisteredModelVersionStagesResponseV1'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+
+  /api/registeredmodels/v1/access/{projectId}:
+    post:
+      tags:
+        - RegisteredModels
+      summary: Request access to a project
+      description: "Request access to a project"
+      operationId: requestProjectAccess
+      parameters:
+        - in: path
+          name: projectId
+          description: Project ID
+          required: true
+          schema:
+            type: string
+      responses:
+        204:
+          description: Success
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+
+
+components:
+  schemas:
+    PaginatedRegisteredModelsEnvelopeV1:
+      type: object
+      required:
+        - items
+        - metadata
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RegisteredModelV1'
+        metadata:
+          $ref: '#/components/schemas/TokenPaginatedMetadataV1'
+
+    PaginatedRegisteredModelsForUIEnvelopeV1:
+      type: object
+      required:
+        - items
+        - metadata
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RegisteredModelForUIV1'
+        metadata:
+          $ref: '#/components/schemas/TokenPaginatedMetadataV1'
+
+    PaginatedRegisteredModelVersionModelApiEnvelopeV1:
+      type: object
+      required:
+        - items
+        - metadata
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RegisteredModelVersionModelApiV1'
+        metadata:
+          $ref: '#/components/schemas/PaginatedMetadataV1'
+
+    PaginatedRegisteredModelNamesV1:
+      type: object
+      required:
+        - items
+        - metadata
+      properties:
+        items:
+          type: array
+          items:
+            type: string
+        metadata:
+          $ref: '#/components/schemas/PaginatedMetadataV1'
+
+    RegisteredModelV1:
+      type: object
+      required:
+        - name
+        - description
+        - project
+        - tags
+        - ownerUsername
+        - createdAt
+        - updatedAt
+        - requestingUserAccess
+      properties:
+        name:
+          type: string
+          description: Name of the registered model
+          example: churn-prediction
+        description:
+          type: string
+          description: Description of the model
+          example: Customer churn model
+        latestVersion:
+          type: integer
+          description: The latest version of the model
+          example: 1
+        project:
+          $ref: '#/components/schemas/RegisteredModelProjectSummaryV1'
+        tags:
+          $ref: '#/components/schemas/RegisteredModelTagsV1'
+        ownerUsername:
+          type: string
+          description: Username of the model's creator
+          example: martin_hito
+        discoverable:
+          type: boolean
+          default: false
+          description: >
+            Indicates whether this model is publicly discoverable.
+            If true, users who are not project members will see this model in search results and can view basic model details.
+
+            This field may be omitted when false.
+        createdAt:
+          type: string
+          format: date-time
+          description: When the latest version of the model was created
+          example: "2022-03-12T02:13:44.467Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: When the latest version of the model was updated
+          example: "2022-03-12T02:13:44.467Z"
+        requestingUserAccess:
+          $ref: '#/components/schemas/RegisteredModelRequestingUserAccessV1'
+          description: Describes the operations that the requesting user has permission to do with this model.
+
+    RegisteredModelForUIV1:
+      type: object
+      required:
+        - name
+        - description
+        - project
+        - tags
+        - ownerUsername
+        - createdAt
+        - updatedAt
+        - modelApiCount
+      properties:
+        name:
+          type: string
+          description: Name of the registered model
+          example: churn-prediction
+        description:
+          type: string
+          description: Description of the model
+          example: Customer churn model
+        latestVersion:
+          type: integer
+          description: The latest version of the model
+          example: 1
+        latestVersionStage:
+          type: string
+          description: The current stage of the latest version of the model
+          example: Staging
+        latestVersionExperimentMetrics:
+          $ref: '#/components/schemas/RegisteredModelMetricsV1'
+        modelApiCount:
+          type: integer
+          description: The number of model APIs associated with the latest version of the model
+          example: 1
+        predictionCount:
+          type: integer
+          description: The number of predictions captured for the active versions of model APIs associated with the latest version of the model
+          example: 100
+        project:
+          $ref: '#/components/schemas/RegisteredModelProjectSummaryV1'
+        tags:
+          $ref: '#/components/schemas/RegisteredModelTagsV1'
+        ownerUsername:
+          type: string
+          description: Username of the project owner
+          example: martin_hito
+        discoverable:
+          type: boolean
+          default: false
+          description: >
+            Indicates whether this model is publicly discoverable.
+            If true, users who are not project members will see this model in search results and can view basic model details.
+
+            This field may be omitted when false.
+        createdAt:
+          type: string
+          format: date-time
+          description: When the latest version of the model was created
+          example: "2022-03-12T02:13:44.467Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: When the latest version of the model was updated
+          example: "2022-03-12T02:13:44.467Z"
+
+    RegisteredModelVersionDetailsV1:
+      type: object
+      required:
+        - modelName
+        - modelVersion
+        - modelVersionDescription
+        - experimentRunId
+        - currentStage
+        - project
+        - versionUiDetails
+        - tags
+        - ownerUsername
+        - createdAt
+        - updatedAt
+      properties:
+        modelName:
+          type: string
+          description: Name of the registered model
+          example: churn-prediction
+        modelVersion:
+          type: integer
+          description: The latest version of the model
+          example: 4
+        modelVersionDescription:
+          type: string
+          description: Description of the model version
+          example: Customer churn model V1
+        experimentRunId:
+          type: string
+          description: The name of experiment run linked to the model version
+          example: db79712b47084c27a463a188bf901943
+        currentStage:
+          type: string
+          description: The current stage of the model version
+          example: Staging
+        ownerUsername:
+          type: string
+          description: username of the project owner
+          example: martin_hito
+        project:
+          $ref: '#/components/schemas/RegisteredModelProjectSummaryV1'
+        reviewSummary:
+          $ref: '#/components/schemas/RegisteredModelReviewSummaryV1'
+        versionUiDetails:
+          $ref: '#/components/schemas/RegisteredModelVersionUiDetailsV1'
+        tags:
+          $ref: '#/components/schemas/RegisteredModelTagsV1'
+        createdAt:
+          type: string
+          format: date-time
+          description: When the latest version of the model was created
+          example: "2022-03-12T02:13:44.467Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: When the latest version of the model was updated
+          example: "2022-03-12T02:13:44.467Z"
+
+    UpdatedRegisteredModelVersionV1:
+      type: object
+      properties:
+        currentStage:
+          type: string
+          description: The current stage of the model version
+          example: Staging
+
+    RegisteredModelVersionModelApiV1:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - project
+        - updatedAt
+      properties:
+        id:
+          type: string
+          description: ID of the Model API
+          example: 6452f88ac21bd0c60eca085
+        name:
+          type: string
+          description: Name of the Model API
+          example: "Test Model API"
+        description:
+          type: string
+          description: Description of the model
+          example: Customer churn model
+        activeVersionNumber:
+          type: integer
+          description: The active version number of the Model API
+          example: 2
+        activeModelVersionId:
+          type: string
+          description: The id of the Model API
+          example: 6452f88ac21bd0c60eca087
+        activeVersionStatus:
+          type: string
+          description: The status of the Model API
+          example: "Running"
+        project:
+          $ref: '#/components/schemas/RegisteredModelProjectSummaryV1'
+        updatedAt:
+          type: string
+          format: date-time
+          description: When the latest version of the model was updated
+          example: "2022-03-12T02:13:44.467Z"
+
+    NewRegisteredModelV1:
+      type: object
+      required:
+        - modelName
+        - experimentRunId
+        - discoverable
+      properties:
+        modelName:
+          type: string
+          description: The name of the registered model
+          example: Housing Price Predictor
+        description:
+          type: string
+          description: The description of the registered model
+          example: This model predicts housing prices
+        experimentRunId:
+          type: string
+          description: The id of the experiment run to create the version from
+          example: a8ea375c781d4b9c8e58469f0ad738f8
+        tags:
+          $ref: '#/components/schemas/RegisteredModelTagsV1'
+        discoverable:
+          type: boolean
+          description: >
+            Indicates whether this model is publicly discoverable.
+            If true, users who are not project members will see this model in search results and can view basic model details.
+
+    NewRegisteredModelVersionV1:
+      type: object
+      required:
+        - description
+        - experimentRunId
+        - artifact
+      properties:
+        description:
+          type: string
+          description: The description of the registered model version
+          example: Logistic regression model version 2
+        experimentRunId:
+          type: string
+          description: The id of the experiment run to create the version from
+          example: a8ea375c781d4b9c8e58469f0ad738f8
+        artifact:
+          type: string
+          description: The artifact of the run to create the version from
+          example: LogisticRegression
+
+    PatchRegisteredModelV1:
+      type: object
+      properties:
+        description:
+          type: string
+          description: The description of the registered model
+          example: Logistic regression model
+        discoverable:
+          type: boolean
+          description: Whether this registered model is discoverable
+
+    PaginatedRegisteredModelVersionOverviewEnvelopeV1:
+      type: object
+      required:
+        - items
+        - metadata
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RegisteredModelVersionOverviewV1'
+        metadata:
+          $ref: '#/components/schemas/PaginatedMetadataV1'
+
+    RegisteredModelVersionOverviewV1:
+      type: object
+      required:
+        - modelName
+        - modelVersion
+        - experimentRunId
+        - project
+        - ownerUsername
+        - createdAt
+        - updatedAt
+      properties:
+        modelName:
+          type: string
+          description: Name of the registered model
+          example: churn-prediction
+        modelVersion:
+          type: integer
+          description: The latest version of the model
+          example: 4
+        experimentRunId:
+          type: string
+          description: The name of experiment run linked to the model version
+          example: db79712b47084c27a463a188bf901943
+        project:
+          $ref: '#/components/schemas/RegisteredModelProjectSummaryV1'
+        ownerUsername:
+          type: string
+          description: username of the project owner
+          example: martin_hito
+        createdAt:
+          type: string
+          format: date-time
+          description: When the latest version of the model was created
+          example: "2022-03-12T02:13:44.467Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: When the latest version of the model was updated
+          example: "2022-03-12T02:13:44.467Z"
+
+    RegisteredModelProjectSummaryV1:
+      description: type that tracks properties of the project associated with a model
+      type: object
+      required:
+        - id
+        - name
+        - ownerUsername
+        - isGitBasedProject
+      properties:
+        id:
+          type: string
+          description: ID of the project housing the model
+          example: 62313ce67a0af0281c01a6a5
+        name:
+          type: string
+          description: Name of the project overview housing the model
+          example: TO-DO
+        ownerUsername:
+          type: string
+          description: Name of the project owner
+          example: TO-DO
+        isGitBasedProject:
+          type: boolean
+          description: Whether the project is a git-based project
+
+    RegisteredModelTagsV1:
+      description: A map of key -> value
+      type: object
+      additionalProperties:
+        type: string
+      example:
+        key: foo
+        value: bar
+
+    RegisteredModelMetricsV1:
+      description: A map of key -> value
+      type: object
+      additionalProperties:
+        type: number
+        format: double
+      example:
+        key: foo
+        value: 1
+
+    RegisteredModelVersionReviewStagesResponseV1:
+      type: object
+      required:
+        - items
+        - metadata
+      properties:
+        items:
+          type: array
+          description: The registered model version stages valid for starting a model review
+          items:
+            $ref: '#/components/schemas/RegisteredModelVersionReviewStageResponseV1'
+        metadata:
+          $ref: '#/components/schemas/MetadataV1'
+
+    RegisteredModelVersionReviewStageResponseV1:
+      type: object
+      required:
+        - label
+      properties:
+        label:
+          type: string
+          description: The label of the model stage valid for starting a model review
+          example: QA
+
+    NewRegisteredModelReviewV1:
+      type: object
+      required:
+        - targetStage
+        - reviewers
+      properties:
+        targetStage:
+          type: string
+          description: The target stage for the new review
+          example: QA
+        reviewers:
+          type: array
+          description: The users to be set as reviewers
+          items:
+            $ref: '#/components/schemas/NewRegisteredModelReviewReviewersV1'
+        notes:
+          type: string
+          description: The notes added to the review
+          example: Please review this model
+
+    UpdatedRegisteredModelReviewV1:
+      type: object
+      properties:
+        reviewers:
+          type: array
+          description: The users to be set as reviewers
+          items:
+            $ref: '#/components/schemas/NewRegisteredModelReviewReviewersV1'
+        notes:
+          type: string
+          description: The notes added to the review
+          example: Updating list of reviewers for this model review
+        status:
+          type: string
+          description: The status of the review
+          example: Canceled
+
+    NewRegisteredModelReviewReviewersV1:
+      type: object
+      required:
+        - userId
+      properties:
+        userId:
+          type: string
+          description: The user Id of the user to be set as reviewer
+          example: 452f88ac21bd0c60eca085
+
+    NewRegisteredModelReviewResponseV1:
+      type: object
+      required:
+        - decision
+      properties:
+        decision:
+          type: string
+          description: The decision of the reviewer
+          example: Approved
+        notes:
+          type: string
+          description: The notes of the reviewer
+          example: LGTM
+
+    RegisteredModelReviewSummaryV1:
+      type: object
+      required:
+        - modelReviewId
+        - targetStage
+        - notes
+        - status
+        - reviewerResponses
+      properties:
+        modelReviewId:
+          type: string
+          description: The id of the model review
+        targetStage:
+          type: string
+          description: The target stage of the model review
+        notes:
+          type: string
+          description: The notes of the review
+          example: Please review this model
+        status:
+          type: string
+          description: The status of the model review
+        reviewerResponses:
+          type: array
+          items:
+            type: object
+            required:
+              - reviewer
+            properties:
+              reviewer:
+                $ref: '#/components/schemas/RegisteredModelReviewUserInfoV1'
+              decision:
+                type: string
+                description: The response of the reviewer
+                example: Approved
+
+    RegisteredModelVersionUiDetailsV1:
+      type: object
+      required:
+        - experimentRunInfo
+        - modelVersionDataSources
+        - modelVersionDatasets
+      properties:
+        experimentRunInfo:
+          $ref: '#/components/schemas/RegisteredModelVersionExperimentRunInfoV1'
+        modelVersionDataSources:
+          type: array
+          items:
+            $ref: '#/components/schemas/RegisteredModelVersionDataSourceDetailsV1'
+        modelVersionDatasets:
+          type: array
+          items:
+            $ref: '#/components/schemas/RegisteredModelVersionDatasetDetailsV1'
+
+    RegisteredModelVersionExperimentRunInfoV1:
+      type: object
+      required:
+        - metrics
+        - params
+        - runUrl
+      properties:
+        metrics:
+          description: Run metrics.
+          items:
+            $ref: "#/components/schemas/RegisteredModelVersionExperimentRunMetricV1"
+          type: array
+        params:
+          description: Run parameters.
+          items:
+            $ref: "#/components/schemas/RegisteredModelVersionExperimentRunParamV1"
+          type: array
+        runUrl:
+          type: string
+          description: The snapshotId of the dataset
+
+    RegisteredModelVersionExperimentRunMetricV1:
+      type: object
+      required:
+        - key
+        - value
+        - timestamp
+      properties:
+        key:
+          description: Key identifying this metric.
+          type: string
+        value:
+          description: Value associated with this metric.
+          format: double
+          type: number
+        timestamp:
+          type: string
+          format: date-time
+          description: The timestamp at which this metric was recorded.
+          example: "2022-03-12T02:13:44.467Z"
+
+    RegisteredModelVersionExperimentRunParamV1:
+      type: object
+      required:
+        - key
+        - value
+      properties:
+        key:
+          description: Key identifying this param.
+          type: string
+        value:
+          description: Value associated with this param.
+          type: string
+
+    RegisteredModelVersionDatasetDetailsV1:
+      type: object
+      required:
+        - name
+        - id
+        - snapshotId
+      properties:
+        name:
+          type: string
+          description: The name of the dataset
+        id:
+          type: string
+          description: The id of the dataset
+        snapshotId:
+          type: string
+          description: The snapshotId of the dataset
+
+    RegisteredModelVersionDataSourceDetailsV1:
+      type: object
+      required:
+        - name
+        - id
+        - dataSourceType
+      properties:
+        name:
+          type: string
+          description: The name of the datasource
+        id:
+          type: string
+          description: The id of the datasource
+        dataSourceType:
+          type: string
+          description: The dataSourceType of the datasource
+
+    RegisteredModelStageEnvelopeV1:
+      type: object
+      required:
+        - items
+        - metadata
+      properties:
+        items:
+          type: array
+          description: The Registered Model stages
+          items:
+            $ref: '#/components/schemas/RegisteredModelStageV1'
+        metadata:
+          $ref: '#/components/schemas/MetadataV1'
+
+    RegisteredModelStageV1:
+      type: object
+      required:
+        - label
+      properties:
+        label:
+          type: string
+          description: The label of the model stage
+          example: QA
+
+    RegisteredModelVersionStageValidationV1:
+      type: object
+      required:
+        - stage
+      properties:
+        stage:
+          type: string
+          description: The stage to validate the transition for
+          example: QA
+
+    RegisteredModelVersionStagesV1:
+      type: object
+      required:
+        - stages
+      properties:
+        stages:
+          type: array
+          description: The Registered Model Version stages for a project
+          items:
+            $ref: '#/components/schemas/RegisteredModelVersionCustomStageV1'
+
+    RegisteredModelVersionCustomStageV1:
+      type: object
+      required:
+        - label
+      properties:
+        label:
+          type: string
+          description: The custom stage of a registered model version for a project
+          example: Pre-Production
+
+    RegisteredModelVersionStagesResponseV1:
+      type: object
+      required:
+        - items
+        - metadata
+      properties:
+        items:
+          type: array
+          description: The Registered Model Version stages for a project
+          items:
+            $ref: '#/components/schemas/RegisteredModelVersionCustomStageResponseV1'
+        metadata:
+          $ref: '#/components/schemas/MetadataV1'
+
+    RegisteredModelVersionCustomStageResponseV1:
+      type: object
+      required:
+        - label
+      properties:
+        label:
+          type: string
+          description: The label of the model stage
+          example: QA
+
+    RegisteredModelReviewUserInfoV1:
+      type: object
+      required:
+        - id
+        - username
+        - firstName
+        - lastName
+      properties:
+        id:
+          type: string
+          description: The id of the model review user
+          example: 452f88ac21bd0c60eca085
+        username:
+          type: string
+          description: The username of the model review user
+          example: ddl-tnguyen
+        firstName:
+          type: string
+          description: The first name of the model review user
+          example: Tuanathon
+        lastName:
+          type: string
+          description: The last name of the model review user
+          example: Nguyen
+
+    RegisteredModelRequestingUserAccessV1:
+      type: object
+      required:
+        - canEditModel
+        - canEditProjectAssets
+        - canViewExperimentRuns
+        - canViewModelApis
+        - canViewProject
+        - canViewProjectFiles
+      properties:
+        canEditModel:
+          type: boolean
+          description: True if the requesting user can update this model
+        canEditProjectAssets:
+          type: boolean
+          description: >
+            True if the requesting user has permissions to edit other assets of the project
+            that this model belongs to.
+        canViewExperimentRuns:
+          type: boolean
+          description: >
+            True if the requesting user can view experiment runs of the project that this
+            model belongs to.
+        canViewModelApis:
+          type: boolean
+          description: >
+            True if the requesting user can view model apis of the project that this model
+            belongs to.
+        canViewProject:
+          type: boolean
+          description: >
+            True if the requesting user can view the project overview of the project that
+            this model belongs to.
+        canViewProjectFiles:
+          type: boolean
+          description: >
+            True if the requesting user can view the files of the project that this model
+            belongs to.
